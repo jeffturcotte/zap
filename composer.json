@@ -16,11 +16,11 @@
          }
     },
     "require": {
-         "jest/jest": "1.0.*@dev",
-         "symfony/http-foundation": "2.3.*@dev",
-         "symfony/routing": "2.4.*@dev",
+         "jest/jest": "~1.0",
          "php": ">=5.4.0",
-         "pimple/pimple": "1.0.*@dev",
-         "psr/log": "1.0"
+         "pimple/pimple": "~1.0",
+         "psr/log": "1.0",
+         "symfony/http-foundation": "~2.3",
+         "symfony/routing": "~2.4"
     }
 }
