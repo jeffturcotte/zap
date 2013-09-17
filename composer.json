@@ -10,7 +10,7 @@
             "email": "jeff.turcotte@gmail.com"
         }
     ],
-    "autoload" {
+    "autoload": {
          "psr-0": {
               "Zap": "src/"
          }
