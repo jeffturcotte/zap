@@ -1,0 +1,26 @@
+{
+    "name": "zap/zap",
+    "type": "library",
+    "description": "A Control-Flow / DI handler for PHP 5.4+ applications",
+    "keywords": ["Control Flow", "DI", "dependency injection"],
+    "homepage": "https://github.com/jeffturcotte/zap",
+    "authors": [
+        {
+            "name": "Jeff Turcotte",
+            "email": "jeff.turcotte@gmail.com"
+        }
+    ],
+    "autoload" {
+         "psr-0" {
+              "Zap": "src/"
+         }
+    },
+    "require": {
+         "jest/jest": "dev-master",
+         "symfony/http-foundation": "2.3.*@dev",
+         "symfony/routing": "2.4.*@dev",
+         "php": ">=5.4.0",
+         "pimple/pimple": "1.0.*@dev",
+         "psr/log": "1.0"
+    }
+}
