@@ -16,7 +16,7 @@
          }
     },
     "require": {
-         "jest/jest": "dev-master",
+         "jest/jest": "1.0.*@dev",
          "symfony/http-foundation": "2.3.*@dev",
          "symfony/routing": "2.4.*@dev",
          "php": ">=5.4.0",
