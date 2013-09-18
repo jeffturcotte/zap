@@ -17,12 +17,13 @@ use Symfony\Component\Routing\Generator\Urlgenerator;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
-use Zap\App as App;
+use Zap\App;
 
 class Rewrite {
 	protected $shared;
 	protected $incoming;
 	protected $outgoing;
+
 
 	/**
 	 * Constructor
