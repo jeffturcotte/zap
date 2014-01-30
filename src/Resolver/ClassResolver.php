@@ -7,17 +7,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Zap\Resolver;
 
 use Symfony\Component\HttpFoundation\Request;
 use Zap\App;
-use Zap\ResolverInterface;
 
-class AppView
+class ClassResolver
 {
 	protected $namespace;
-
 
 	/**
 	 * The Constructor
@@ -42,8 +39,8 @@ class AppView
 	 * return an instance of the class. All segments of the URL will be
 	 * upper camelized, treating dashes as word separators.
 	 *
-	 * Example #1: /users/edit -> \Users\Edit
-	 * Example #2: /api/access-groups/delete -> \Api\AccessGroups\Delete
+	 * Example #1: /users/edit -> \ConfiguredNamespace\Users\Edit
+	 * Example #2: /api/access-groups/delete -> \ConfiguredNamespace\Api\AccessGroups\Delete
 	 *
 	 * @param $app Zap\App
 	 *     The application instance
@@ -61,45 +58,23 @@ class AppView
 		// camelize each piece of the uri
 		$pieces = explode('/', $uri);
 		$pieces = array_slice($pieces, 1);
-		$pieces = array_map(array($this, 'camelize'), $pieces);
+		$pieces = array_map([$this, 'camelize'], $pieces);
 				
 		// generate class name, ensure that the configured
 		// namespace has been prefixed for security
 		$class  = '\\' . $this->namespace . '\\' . join('\\', $pieces);
 
 		// check for class with autoloader
-		if (!$this->validateClass($class, $req)) {
+		if (!class_exists($class)) {
 			return;
 		}
 
-		// if the class has been set up as a
-		// dependency, return that instead.
+		// return configured class.
 		if (isset($app[$class])) {
 			return $app[$class];
 		}
 
 		return new $class();
-	}
-
-
-	/**
-	 * Validate that the class should be instantiated
-	 *
-	 * @param $class string
-	 *     The class to validate
-	 *
-	 * @param $req Symfony\Component\HttpFoundation\Request
-	 *     The current request
-	 *
-	 * @return boolean
-	 *     Whether or not the class is valid
-	 */
-	protected function validateClass($class, Request $req)
-	{
-		if (class_exists($class)) {
-			return true;
-		}
-		return false;
 	}
 
 

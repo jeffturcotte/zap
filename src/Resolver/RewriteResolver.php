@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Zap\App;
 
-class Rewrite {
+class RewriteResolver {
 	protected $shared;
 	protected $incoming;
 	protected $outgoing;
@@ -56,25 +56,16 @@ class Rewrite {
 	 *
 	 * @return void
 	 */
-	public function add($incoming, $outgoing, $callback = null)
+	public function add($incoming, $outgoing, $name)
 	{
 		$incoming = new Route($incoming);
 		$outgoing = new Route($outgoing);
 
-		$name = null;
-
-		if (is_string($callback)) {
-			$name = $callback;
-		} else if (is_a($callback, 'Closure')) {
-			$name = call_user_func_array($callback, [$incoming, $outgoing]);
-		}
-
-		// use the object hash as the name if one wasn't set
-		$name = $name ?: spl_object_hash($incoming);
-
 		$this->shared->add($name, $incoming);
 		$this->incoming->add($name, $incoming);
 		$this->outgoing->add($name, $outgoing);
+
+		return $incoming;
 	}
 
 
@@ -112,9 +103,6 @@ class Rewrite {
 
 		// generate the new link
 		$url = $generator->generate($route, $attributes);
-
-		// remove attributes that are present in both urls
-		$attributes = array_diff_key($attributes, array_flip($vars));
 
 		// duplicate the request and set all the new attributes/params
 		$request = $request->duplicate();

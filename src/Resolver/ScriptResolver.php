@@ -3,9 +3,8 @@ namespace Zap\Resolver;
 
 use Symfony\Component\HttpFoundation\Request as Request;
 use Zap\App as App;
-use Zap\ResolverInterface;
 
-class PageController
+class ScriptResolver
 {
 	protected $path;
 

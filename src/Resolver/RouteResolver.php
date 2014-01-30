@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Zap\App as App;
 
-class Mount {
+class RouteResolver {
 	protected $shared;
 
 	public function __construct(RouteCollection $collection)
@@ -28,24 +28,18 @@ class Mount {
 		$this->collection = new RouteCollection();
 	}
 
-	public function add($url, Callable $controller, $callback = null)
+	public function add($url, $name, $controller)
 	{
 		$options = (array) $options;
 
-		$route = new Route($url, ['_controller' => $controller]);
-
-		if (is_string($callback)) {
-			$name = $callback;
-		} else if (is_a($callback, 'Closure')) {
-			$name = call_user_func_array($callback, [$route]);
-		}
-
-		// use the object hash as the name if one wasn't set
-		$name = $name ?: spl_object_hash($incoming);
+		$route = new Route($url, [
+			'_controller' => $controller
+		]);
 
 		$this->shared->add($name, $route);
 		$this->collection->add($name, $route);
 
+		return $route;
 	}
 
 	public function route(Request $request)
@@ -73,7 +67,7 @@ class Mount {
 		return $controller;
 	}
 
-	public function __invoke(App $app, Request $req)
+	public function __invoke(Request $req)
 	{
 		return $this->route($req);
 	}

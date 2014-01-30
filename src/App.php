@@ -64,16 +64,16 @@ class App extends Kernel
 			return new RouteCollection();
 		});
 
-		$this['Zap\Resolver\Rewrite'] = $this->share(function(RouteCollection $collection) {
-			return new Resolver\Rewrite($collection);
+		$this['Zap\Resolver\RewriteResolver'] = $this->share(function(RouteCollection $collection) {
+			return new Resolver\RewriteResolver($collection);
 		});
 
-		$this['Zap\Resolver\Mount'] = $this->share(function(RouteCollection $collection) {
-			return new Resolver\Mount($collection);
+		$this['Zap\Resolver\RouteResolver'] = $this->share(function(RouteCollection $collection) {
+			return new Resolver\RouteResolver($collection);
 		});
 
-		$this['Zap\Resolver\AppView'] = $this->share(function(Pimple $config) {
-			return new Resolver\AppView($config['namespace']);
+		$this['Zap\Resolver\ClassResolver'] = $this->share(function(Pimple $config) {
+			return new Resolver\ClassResolver($config['namespace']);
 		});
 
 		$this['Pimple'] = $this->share(function() use ($defaults) {
@@ -85,25 +85,20 @@ class App extends Kernel
 		});
 
 		$this->push(function() {
-			return $this['Zap\Resolver\Rewrite'];
+			return $this['Zap\Resolver\RewriteResolver'];
 		});
 
 		$this->push(function() {
-			return $this['Zap\Resolver\Mount'];
+			return $this['Zap\Resolver\RouteResolver'];
 		});
 
 		$this->push(function() {
-			return $this['Zap\Resolver\AppView'];
+			return $this['Zap\Resolver\ClassResolver'];
 		});
-	}
-
-	public function mount($uri, Callable $callable, $callback = null)
-	{
-		$this['Zap\Resolver\Mount']->add($uri, $callable, $callback);
 	}
 
 	public function rewrite($incoming, $outgoing, $callback = null)
 	{
-		$this['Zap\Resolver\Rewrite']->add($incoming, $outgoing, $callback);
+		$this['Zap\Resolver\RewriteResolver']->add($incoming, $outgoing, $callback);
 	}
 }

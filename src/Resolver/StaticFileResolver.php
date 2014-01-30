@@ -8,13 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Zap\Resolver;
+namespace Zap\View;
 
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 
-class SaticFile
+class StaticFileResolver
 {
 	protected $path;
 

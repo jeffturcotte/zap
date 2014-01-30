@@ -11,8 +11,8 @@
         }
     ],
     "autoload": {
-         "psr-0": {
-              "Zap": "src/"
+         "psr-4": {
+              "Zap\\": "src/"
          }
     },
     "require": {
@@ -21,6 +21,7 @@
          "pimple/pimple": "~1.0",
          "psr/log": "1.0",
          "symfony/http-foundation": "~2.3",
-         "symfony/routing": "~2.3"
+         "symfony/routing": "~2.3",
+        "twig/twig": "~1.13"
     }
 }
