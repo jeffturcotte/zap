@@ -10,7 +10,7 @@
 namespace Zap\Resolver;
 
 use Symfony\Component\HttpFoundation\Request;
-use Zap\Kernel;
+use Zap\App;
 
 class ClassResolver
 {
@@ -51,7 +51,7 @@ class ClassResolver
 	 * @return mixed
 	 *     null if class doesn't exist, otherwise a new instance of the class
 	 */
-	public function resolve(Kernel $app, Request $req)
+	public function resolve(App $app, Request $req)
 	{
 		$uri = $req->getPathInfo();
 

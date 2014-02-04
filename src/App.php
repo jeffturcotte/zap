@@ -8,7 +8,6 @@
 
 namespace Zap;
 
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Jest\Injector;
@@ -37,7 +36,7 @@ class App extends Injector implements HttpKernelInterface
 	 */
 	public function __construct()
 	{
-		$this[get_class($this)] = $this;
+		$this[__CLASS__] = $this;
 	}
 
 
@@ -88,11 +87,11 @@ class App extends Injector implements HttpKernelInterface
 
 
 	/**
-	 * Runs all resolvers and returns the first 
-	 * non-Callable, non-null value, or Exception received.
-	 * If a null value is returned, drop through to the
-	 * next resolver. In this fashion, one can craft
-	 * Resolver 'Middleware'.
+	 * Resolves the app with all registered dependencies
+	 *
+	 * Runs all resolvers and returns the first non-null, non-ResolverInterface value received
+	 * If a null value is returned, drop through to the next resolver.
+	 * In this fashion, one can craft ResolverInterface middleware
 	 *
 	 * @return mixed
 	 *     The first non-null value returned from a resolver
@@ -101,7 +100,7 @@ class App extends Injector implements HttpKernelInterface
 	{
 		foreach($this->resolvers as $resolver) {
 			$return = $this->call($resolver);
-			if ($return !== NULL) {
+			if ($return !== null) {
 				return $return;
 			}
 		}
@@ -122,7 +121,7 @@ class App extends Injector implements HttpKernelInterface
 		$response = $this->resolve();
 
 		if (!($response instanceof Response)) {
-			throw new \LogicException('Response not returned from the Request Resolver');
+			throw new \LogicException('No Response returned from the Resolver stack');
 		}
 
 		$this[get_class($current)] = $current;

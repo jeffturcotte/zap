@@ -21,6 +21,6 @@
          "psr/log": "1.0",
          "symfony/http-kernel": "dev-master",
          "symfony/http-foundation": "~2.3",
-         "symfony/routing": "~2.3",
+         "symfony/routing": "~2.3"
     }
 }
