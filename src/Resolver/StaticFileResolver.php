@@ -8,13 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Zap\View;
+namespace Zap\Resolver;
 
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Zap\ResolverInterface;
 
-
-class StaticFileResolver
+class StaticFileResolver implements ResolverInterface
 {
 	protected $path;
 
@@ -32,6 +32,7 @@ class StaticFileResolver
 		$this->path = $path;
 	}
 
+
 	/**
 	 * Returns a response for a static/binary file
 	 *
@@ -41,7 +42,7 @@ class StaticFileResolver
 	 * @return BinaryFileResponse
 	 *     The response object
 	 */
-	public function __invoke(Request $req)
+	public function resolve(Request $req)
 	{
 		$file = $this->path . $req->getRequestUri();
 

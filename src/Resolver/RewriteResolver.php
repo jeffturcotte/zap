@@ -128,7 +128,7 @@ class RewriteResolver {
 	 *
 	 * @return void
 	 */
-	public function __invoke(App $app, Request $req)
+	public function resolve(App $app, Request $req)
 	{
 		$app['Symfony\Component\HttpFoundation\Request'] = $app->share(function() use ($req) {
 			return $this->rewrite($req);

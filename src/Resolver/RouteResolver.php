@@ -67,7 +67,7 @@ class RouteResolver {
 		return $controller;
 	}
 
-	public function __invoke(Request $req)
+	public function resolve(Request $req)
 	{
 		return $this->route($req);
 	}

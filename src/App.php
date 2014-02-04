@@ -1,104 +1,145 @@
 <?php
 /*
- * This file is part of the Zap package.
+ * Zap.
  *
- * (c) Jeff Turcotte <jeff.turcotte@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * @copyright 2014 Jeff Turcotte
+ * @license see LICENSE file included with this package
  */
 
 namespace Zap;
 
-use Pimple;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Jest\Injector;
 
 /**
- * Configures and manages an application
+ * Base Application Layer
  *
  * @package Zap
  *
  * @author Jeff Turcotte <jeff.turcotte@gmail.com>
  **/
-class App extends Kernel
+class App extends Injector implements HttpKernelInterface
 {	
+	/**
+	 * The resolvers that have been queued up
+	 *
+	 * @var array
+	 */
+	protected $resolvers = array();
+
+
 	/**
 	 * Constructor
 	 *
-	 * @return Zap\App
+	 * @return Resolver
 	 */
 	public function __construct()
 	{
-		$defaults = [
-			'namespace' => 'app'
-		];
-
-		$this['Zap\App'] = $this->share(function() {
-			return $this;
-		});
-
-		$this['Symfony\Component\HttpFoundation\Request'] = $this->share(function() {
-			return Request::createFromGlobals();
-		});
-
-		$this['Symfony\Component\HttpFoundation\Response'] = $this->share(function() {
-			return new Response();
-		});
-
-		$this['Symfony\Component\Routing\RequestContext'] = $this->share(function(Request $request) {
-			$context = new RequestContext();
-			$context->fromRequest(Request::createFromGlobals());
-			return $context;
-		});
-
-		$this['Symfony\Component\Routing\Generator\UrlGenerator'] = $this->share(function(RequestContext $context, RouteCollection $collection) {
-			return new UrlGenerator($collection, $context);
-		});
-
-		$this['Symfony\Component\Routing\RouteCollection'] = $this->share(function() {
-			return new RouteCollection();
-		});
-
-		$this['Zap\Resolver\RewriteResolver'] = $this->share(function(RouteCollection $collection) {
-			return new Resolver\RewriteResolver($collection);
-		});
-
-		$this['Zap\Resolver\RouteResolver'] = $this->share(function(RouteCollection $collection) {
-			return new Resolver\RouteResolver($collection);
-		});
-
-		$this['Zap\Resolver\ClassResolver'] = $this->share(function(Pimple $config) {
-			return new Resolver\ClassResolver($config['namespace']);
-		});
-
-		$this['Pimple'] = $this->share(function() use ($defaults) {
-			return new Pimple($defaults);
-		});
-
-		$this['Psr\Log\LoggerInterface'] = $this->share(function() {
-			return new NullLogger();
-		});
-
-		$this->push(function() {
-			return $this['Zap\Resolver\RewriteResolver'];
-		});
-
-		$this->push(function() {
-			return $this['Zap\Resolver\RouteResolver'];
-		});
-
-		$this->push(function() {
-			return $this['Zap\Resolver\ClassResolver'];
-		});
+		$this[get_class($this)] = $this;
 	}
 
-	public function rewrite($incoming, $outgoing, $callback = null)
+
+	/**
+	 * Invokes a single Callable resolver
+	 *
+	 * @param $resolver ResolverInterface
+	 *     A resolver
+	 *
+	 * @return mixed
+	 *     The first non-null value returned from a resolver chain
+	 **/
+	public function call(ResolverInterface $resolver)
 	{
-		$this['Zap\Resolver\RewriteResolver']->add($incoming, $outgoing, $callback);
+		$return = $this->invoke([$resolver, 'resolve']);
+
+		if ($return instanceof ResolverInterface) {
+			return $this->call($return);
+		}
+
+		return $return;
+	}
+
+
+	/**
+	 * Push a Resolver onto the queue
+	 *
+	 * @param $resolver mixed
+	 *     A Callable or an array of Callables
+	 *
+	 * @return void
+	 **/
+	public function push(ResolverInterface $resolver)
+	{
+		array_push($this->resolvers, $resolver);
+	}
+
+
+	/**
+	 * Clear out all of the queued resolvers
+	 *
+	 * @return void
+	 */
+	public function reset()
+	{
+		$this->resolvers = array();
+	}
+
+
+	/**
+	 * Runs all resolvers and returns the first 
+	 * non-Callable, non-null value, or Exception received.
+	 * If a null value is returned, drop through to the
+	 * next resolver. In this fashion, one can craft
+	 * Resolver 'Middleware'.
+	 *
+	 * @return mixed
+	 *     The first non-null value returned from a resolver
+	 **/
+	public function resolve()
+	{
+		foreach($this->resolvers as $resolver) {
+			$return = $this->call($resolver);
+			if ($return !== NULL) {
+				return $return;
+			}
+		}
+	}
+
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+	{
+		$current = isset($this[get_class($request)])
+			? $this[get_class($request)]
+			: $request;
+		
+		$this[get_class($request)] = $request;
+
+		$response = $this->resolve();
+
+		if (!($response instanceof Response)) {
+			throw new \LogicException('Response not returned from the Request Resolver');
+		}
+
+		$this[get_class($current)] = $current;
+
+		return $response;
+	}
+
+
+	/**
+	 * Runs the app
+	 *
+	 * @param request Symfony\Component\HttpFoundation\Request
+	 */
+	public function run(Request $request = null)
+	{
+		$request = $request ?: Request::createFromGlobals();
+
+		return $this->handle($request);
 	}
 }

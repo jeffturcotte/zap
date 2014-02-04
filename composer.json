@@ -18,10 +18,9 @@
     "require": {
          "jest/jest": "~1.0",
          "php": ">=5.4.0",
-         "pimple/pimple": "~1.0",
          "psr/log": "1.0",
+         "symfony/http-kernel": "dev-master",
          "symfony/http-foundation": "~2.3",
          "symfony/routing": "~2.3",
-        "twig/twig": "~1.13"
     }
 }
