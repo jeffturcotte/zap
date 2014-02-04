@@ -9,6 +9,7 @@
 namespace Zap;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Jest\Injector;
 
@@ -20,7 +21,7 @@ use Jest\Injector;
  * @author Jeff Turcotte <jeff.turcotte@gmail.com>
  **/
 class App extends Injector implements HttpKernelInterface
-{	
+{
 	/**
 	 * The resolvers that have been queued up
 	 *
@@ -115,7 +116,7 @@ class App extends Injector implements HttpKernelInterface
 		$current = isset($this[get_class($request)])
 			? $this[get_class($request)]
 			: $request;
-		
+
 		$this[get_class($request)] = $request;
 
 		$response = $this->resolve();
